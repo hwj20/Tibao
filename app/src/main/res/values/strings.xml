@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">Tibao</string>
+    <string name="localAlbum">本地相册</string>
+    <string name="photoTaking">相机拍摄</string>
+    <string name="cancel">取消</string>
+    <string name="search_answer_in_server">Search answer in server</string>
+</resources>
