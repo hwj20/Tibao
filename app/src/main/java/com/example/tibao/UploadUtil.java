@@ -30,13 +30,14 @@ public class UploadUtil {
      * @param RequestURL 请求的rul
      * @return 返回响应的内容
      */
-    public static String uploadFile(File file, String RequestURL) {
+    public static String uploadFile(File file, String RequestURL, int port) {
         String result = null;
         String BOUNDARY = UUID.randomUUID().toString(); // 边界标识 随机生成
         String PREFIX = "--", LINE_END = "\r\n";
         String CONTENT_TYPE = "multipart/form-data"; // 内容类型
         try {
-            URL url = new URL(RequestURL);
+            URL targetUrl = new URL(RequestURL);
+            URL url = new URL(targetUrl.getProtocol(),targetUrl.getHost(), port, targetUrl.getFile());
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
             conn.setReadTimeout(TIME_OUT);
             conn.setConnectTimeout(TIME_OUT);
@@ -68,6 +69,7 @@ public class UploadUtil {
                 byte[] bytes = new byte[1024];
                 int len = 0;
                 while ((len = is.read(bytes)) != -1) {
+                    Log.d(TAG,"data  "+ new String(bytes));
                     dos.write(bytes, 0, len);
                 }
                 is.close();
@@ -80,21 +82,20 @@ public class UploadUtil {
                  */
                 int res = conn.getResponseCode();
                 Log.e(TAG, "response code:" + res);
-                // if(res==200)
-                // {
-                Log.e(TAG, "request success");
-                InputStream input = conn.getInputStream();
-                StringBuilder sb1 = new StringBuilder();
-                int ss;
-                while ((ss = input.read()) != -1) {
-                    sb1.append((char) ss);
-                }
-                result = sb1.toString();
-                Log.e(TAG, "result : " + result);
-                // }
-                // else{
-                // Log.e(TAG, "request error");
-                // }
+                 if(res==200) {
+                     Log.e(TAG, "request success");
+                     InputStream input = conn.getInputStream();
+                     StringBuilder sb1 = new StringBuilder();
+                     int ss;
+                     while ((ss = input.read()) != -1) {
+                         sb1.append((char) ss);
+                     }
+                     result = sb1.toString();
+                     Log.e(TAG, "result : " + result);
+                 }
+                 else{
+                     Log.e(TAG, "request error");
+                 }
             }
         } catch (IOException e) {
             Log.w(TAG, e.toString());

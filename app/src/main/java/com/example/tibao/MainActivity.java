@@ -59,7 +59,9 @@ import org.jetbrains.annotations.NotNull;
 public class MainActivity extends AppCompatActivity {
 
     String mCurrentPhotoPath = "";
-    String requestUrl = "http://101.201.35.173/";
+    String requestUrl = "http://113.54.216.96/";
+//    String requestUrl = "http://101.201.35.173/";     // tibao.com
+    int port = 8000;
     Context mContext;
     ImageButton button_camera;
 
@@ -102,7 +104,7 @@ public class MainActivity extends AppCompatActivity {
                 Thread thread = new Thread(new Runnable() {
                     @Override
                     public void run() {
-                        UploadUtil.uploadFile(f,requestUrl);
+                        UploadUtil.uploadFile(f,requestUrl, port);
                     }
                 });
                 thread.start();
@@ -126,7 +128,7 @@ public class MainActivity extends AppCompatActivity {
                         Thread thread = new Thread(new Runnable() {
                             @Override
                             public void run() {
-                                UploadUtil.uploadFile(saveMyBitmap(resource), requestUrl);
+                                UploadUtil.uploadFile(saveMyBitmap(resource), requestUrl, port);
                             }
                         });
                     }
