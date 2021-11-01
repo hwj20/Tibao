@@ -24,7 +24,7 @@ public class UploadUtil {
     private static final int TIME_OUT = 10 * 1000; // 超时时间
     private static final String CHARSET = "utf-8"; // 设置编码
     /**
-     * Android上传文件到服务端
+     * Android上传文件到服务端 (POST)
      *
      * @param file 需要上传的文件
      * @param RequestURL 请求的rul
