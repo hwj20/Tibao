@@ -46,6 +46,7 @@ import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
 import java.util.Date;
 
+import static com.example.tibao.CameraState.CROP_REQUEST_CODE;
 import static com.example.tibao.CameraState.RESULT_CAMERA_IMAGE;
 import static com.example.tibao.CameraState.RESULT_LOAD_IMAGE;
 
@@ -56,13 +57,16 @@ public class MainActivity extends AppCompatActivity {
 
     private final static String TAG = "CameraActivity";
     private String mCurrentPhotoPath = "";
-    private final String requestUrl = "http://192.168.1.102/";
+    private final String requestUrl = "http://192.168.1.101/";
 //    String requestUrl = "http://101.201.35.173/";     // tibao.com
     private final int port = 8000;
     private Context mContext;
     private ImageButton button_camera;
     private RecyclerView recyclerView;
-    private String dataset[] = {"123", "456", "789"};
+    private String dataset[] = {"news1: guess what", "news2: a hill", "news3: we make it", "news4: here's a dog",
+    "news5: 震惊，最受学生欢迎的软工老师，竟然是他", "new6: 学习让人快乐"};
+    private String answers[] = {"top secret", "top secret","top secret","top secret","bobo", "never"};
+    private int imageId[] = {R.drawable.doge0,R.drawable.doge1,R.drawable.doge2,R.drawable.doge3,R.drawable.doge4,R.drawable.doge5};
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -78,7 +82,7 @@ public class MainActivity extends AppCompatActivity {
 
         recyclerView = findViewById(R.id.recycle_list);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
-        recyclerView.setAdapter(new RecycleViewAdapter(dataset));
+        recyclerView.setAdapter(new RecycleViewAdapter(dataset, answers,imageId,this));
 
     }
 
@@ -87,34 +91,37 @@ public class MainActivity extends AppCompatActivity {
         super.onActivityResult(requestCode, resultCode, data);
 
         if (resultCode == RESULT_OK ) {
-            if (requestCode == RESULT_LOAD_IMAGE && null != data) {
-                ToastUtils.show("Load image ready");
+            if ((requestCode == RESULT_LOAD_IMAGE || requestCode == RESULT_CAMERA_IMAGE) && null != data) {
                 Uri selectedImage = data.getData();
-                String[] filePathColumn = {MediaStore.Images.Media.DATA};
+                cropPhoto(selectedImage);
+                ToastUtils.show("Load image ready");
+            }
+            if (requestCode == CROP_REQUEST_CODE && null != data) {
+                Uri selectedImage = data.getData();
+//                cropPhoto(selectedImage);
+                Bundle extras = data.getExtras();
+                Bitmap pic = extras.getParcelable("data");
 
-                Cursor cursor = getContentResolver().query(selectedImage,
-                        filePathColumn, null, null, null);
-                cursor.moveToFirst();
-
-                int columnIndex = cursor.getColumnIndex(filePathColumn[0]);
-                final String picturePath = cursor.getString(columnIndex);
-
-                File f = new File(picturePath);
+//                String[] filePathColumn = {MediaStore.Images.Media.DATA};
+//
+//                Cursor cursor = getContentResolver().query(selectedImage,
+//                        filePathColumn, null, null, null);
+//                cursor.moveToFirst();
+//
+//                int columnIndex = cursor.getColumnIndex(filePathColumn[0]);
+//                final String picturePath = cursor.getString(columnIndex);
+//
+//                File f = new File(picturePath);
                 Thread thread = new Thread(() -> {
-                    String feedback = UploadUtil.uploadFile(f, requestUrl, port);
-                    Log.d(TAG, "upload album image");
-                    runOnUiThread(()->showAnswerWindow(feedback));
-
-//                    Thread readThread = new Thread(()->{
-//                        String feedBack = DownloadUtil.getHttpResult(requestUrl, port);
-//                        ToastUtils.show(feedBack);
-//                    });
-//                    readThread.start();
+                    String feedback = UploadUtil.uploadFile(saveMyBitmap(new BitmapDrawable(getResources(), pic)), requestUrl, port);
+                    Log.d(TAG, "upload image");
+                    runOnUiThread(() -> showAnswerWindow(feedback));
 
                 });
                 thread.start();
-                cursor.close();
-            }else if (requestCode == RESULT_CAMERA_IMAGE){      // camera
+//                cursor.close();
+            }
+          else if (requestCode == RESULT_CAMERA_IMAGE){      // camera
                 SimpleTarget target = new SimpleTarget<BitmapDrawable>() {
 
                     @Override
@@ -130,17 +137,13 @@ public class MainActivity extends AppCompatActivity {
                     @Override
                     public void onResourceReady(@NonNull @NotNull BitmapDrawable resource, @Nullable @org.jetbrains.annotations.Nullable Transition<? super BitmapDrawable> transition) {
                         ToastUtils.show("Camera image ready");
+
                         Thread thread = new Thread(new Runnable() {
                             @Override
                             public void run() {
                                 String feedback = UploadUtil.uploadFile(saveMyBitmap(resource), requestUrl, port);
                                 Log.d(TAG, "upload camera image");
                                 runOnUiThread(()->showAnswerWindow(feedback));
-//                                Thread readThread = new Thread(()->{
-//                                   String feedBack = DownloadUtil.getHttpResult(requestUrl, port);
-//                                   ToastUtils.show(feedBack);
-//                                });
-//                                readThread.start();
                             }
                         });
                         thread.start();
@@ -156,6 +159,23 @@ public class MainActivity extends AppCompatActivity {
 
             }
         }
+    }
+
+    // 裁剪图片
+    private void cropPhoto(Uri uri) {
+        Intent intent = new Intent("com.android.camera.action.CROP");
+        intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+        intent.addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
+        intent.setDataAndType(uri, "image/*");
+        intent.putExtra("crop", "true");
+        intent.putExtra("aspectX", 1);
+        intent.putExtra("aspectY", 1);
+
+        intent.putExtra("outputX", 350);
+        intent.putExtra("outputY", 350);
+        intent.putExtra("return-data", true);
+
+        startActivityForResult(intent, CROP_REQUEST_CODE);
     }
 
 
@@ -296,8 +316,8 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    private void showAnswerWindow(String answer){
-        String decode = "答案：\n"+answer;
+    public void showAnswerWindow(String answer){
+        String decode = ""+answer;
 //        try {
 //            decode = new String(answer.getBytes(StandardCharsets), StandardCharsets.UTF_8);
 //

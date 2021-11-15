@@ -1,15 +1,27 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical"
+    android:orientation="horizontal"
+    android:padding="20dp"
     android:layout_width="match_parent"
+    android:background="@color/white"
     android:layout_height="wrap_content">
-    <TextView
-        android:id="@+id/item_news"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
 
-        android:textFontWeight="10"
+    <ImageView
+        android:id="@+id/item_pic"
+        android:layout_width="0dp"
+        android:layout_height="75dp"
         android:layout_weight="1"
+        />
+    <com.google.android.material.textview.MaterialTextView
+        android:id="@+id/item_news"
+        android:layout_width="0dp"
+        android:layout_height="75dp"
+        android:fontStyle="normal"
+        android:fontWeight="400"
+        android:textFontWeight="30"
+        android:layout_weight="1"
+        android:gravity="center"
+        android:background="@color/white"
         />
 
 </LinearLayout>

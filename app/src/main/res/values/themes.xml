@@ -15,4 +15,5 @@
     </style>
 
     <style name="MainStyle" parent="Theme.AppCompat.Light.NoActionBar" />
+
 </resources>
