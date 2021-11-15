@@ -8,9 +8,11 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.util.Map;
 import java.util.UUID;
 
@@ -21,7 +23,7 @@ import java.util.UUID;
  */
 public class UploadUtil {
     private static final String TAG = "uploadFile";
-    private static final int TIME_OUT = 10 * 1000; // 超时时间
+    private static final int TIME_OUT = 30 * 1000; // 超时时间
     private static final String CHARSET = "utf-8"; // 设置编码
     /**
      * Android上传文件到服务端 (POST)
@@ -170,15 +172,19 @@ public class UploadUtil {
         // 得到响应码
         int res = conn.getResponseCode();
         InputStream in = conn.getInputStream();
+        InputStreamReader inputStreamReader = new InputStreamReader(in, StandardCharsets.UTF_8);
+
         StringBuilder sb2 = new StringBuilder();
         if (res == 200) {
             int ch;
-            while ((ch = in.read()) != -1) {
-                sb2.append((char) ch);
+            while ((ch = inputStreamReader.read()) != -1) {
+                sb2.append(ch);
             }
         }
         outStream.close();
         conn.disconnect();
+
+        Log.d(TAG, sb2.toString());
         return sb2.toString();
     }
 }

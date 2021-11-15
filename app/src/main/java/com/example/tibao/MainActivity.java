@@ -28,6 +28,8 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.core.content.FileProvider;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
@@ -40,6 +42,8 @@ import org.jetbrains.annotations.NotNull;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
 import java.util.Date;
 
 import static com.example.tibao.CameraState.RESULT_CAMERA_IMAGE;
@@ -52,11 +56,13 @@ public class MainActivity extends AppCompatActivity {
 
     private final static String TAG = "CameraActivity";
     private String mCurrentPhotoPath = "";
-    private final String requestUrl = "http://192.168.1.104/";
+    private final String requestUrl = "http://192.168.1.102/";
 //    String requestUrl = "http://101.201.35.173/";     // tibao.com
     private final int port = 8000;
     private Context mContext;
     private ImageButton button_camera;
+    private RecyclerView recyclerView;
+    private String dataset[] = {"123", "456", "789"};
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -69,6 +75,11 @@ public class MainActivity extends AppCompatActivity {
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) !=  PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, 2);
         }
+
+        recyclerView = findViewById(R.id.recycle_list);
+        recyclerView.setLayoutManager(new LinearLayoutManager(this));
+        recyclerView.setAdapter(new RecycleViewAdapter(dataset));
+
     }
 
     @Override
@@ -286,6 +297,13 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void showAnswerWindow(String answer){
+        String decode = "答案：\n"+answer;
+//        try {
+//            decode = new String(answer.getBytes(StandardCharsets), StandardCharsets.UTF_8);
+//
+//        }catch (UnsupportedEncodingException e){
+//            Log.e(TAG, e.toString());
+//        }
         View popView = View.inflate(this,R.layout.popup_answer_window,null);
 
         TextView feedText = (TextView) popView.findViewById(R.id.feedback_text);
@@ -300,7 +318,8 @@ public class MainActivity extends AppCompatActivity {
         //点击外部popupWindow消失
         popupWindow.setOutsideTouchable(true);
 
-        feedText.setText(answer);
+        feedText.setText(decode);
+        Log.d(TAG, answer+'\n'+decode);
 
         //popupWindow消失屏幕变为不透明
         popupWindow.setOnDismissListener(new PopupWindow.OnDismissListener() {
