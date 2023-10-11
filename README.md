@@ -1,5 +1,5 @@
-# Tibao（Android 端）
+# Tibao（Android ）
 
-## 服务器端
+## Server
 
 https://github.com/hwj20/tibao_server/
