@@ -102,16 +102,7 @@ public class MainActivity extends AppCompatActivity {
                 Bundle extras = data.getExtras();
                 Bitmap pic = extras.getParcelable("data");
 
-//                String[] filePathColumn = {MediaStore.Images.Media.DATA};
-//
-//                Cursor cursor = getContentResolver().query(selectedImage,
-//                        filePathColumn, null, null, null);
-//                cursor.moveToFirst();
-//
-//                int columnIndex = cursor.getColumnIndex(filePathColumn[0]);
-//                final String picturePath = cursor.getString(columnIndex);
-//
-//                File f = new File(picturePath);
+
                 Thread thread = new Thread(() -> {
                     String feedback = UploadUtil.uploadFile(saveMyBitmap(new BitmapDrawable(getResources(), pic)), requestUrl, port);
                     Log.d(TAG, "upload image");
